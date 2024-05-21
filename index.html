@@ -5,6 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infinite Craft QuickSearch</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2NW6dGLJoZROaS6XlYTObRE9e868hlEE",
+            authDomain: "ok12345-389e2.firebaseapp.com",
+            projectId: "ok12345-389e2",
+            storageBucket: "ok12345-389e2.appspot.com",
+            messagingSenderId: "961029731143",
+            appId: "1:961029731143:web:aa8c884a13b498c1eb5262"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
 </head>
 <body>
     <h1>Infinite Craft QuickSearch</h1>
@@ -14,7 +33,17 @@
         <button id="copyButton">📋 Copy Guide</button>
         <div id="guideContainer"></div>
         <div id="elementsContainer"></div>
+
+        <form id="elementForm">
+            <h2>Submit New Element</h2><br>
+            <input type="text" id="elementName" placeholder="Element Name" required>
+            <input type="text" id="elementDesc" placeholder="Element Description" required>
+            <input type="text" id="subStep1" placeholder="Sub Element 1" required>
+            <input type="text" id="subStep2" placeholder="Sub Element 2" required>
+            <button type="submit">Submit</button>
+        </form>
     </div>
     <script src="script.js"></script>
 </body>
 </html>
+
