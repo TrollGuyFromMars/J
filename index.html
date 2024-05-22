@@ -6,9 +6,9 @@
     <title>Infinite Craft QuickSearch</title>
     <link rel="stylesheet" href="styles.css">
     <!-- Firebase App (the core Firebase SDK) -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js"></script>
     <!-- Firebase Firestore -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js"></script>
     <script>
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -36,14 +36,13 @@
 
         <form id="elementForm">
             <h2>Submit New Element</h2><br>
-            <input type="text" id="elementName" placeholder="Element Name" required>
+            <input type="text" id="elementName" placeholder="Element Name (e.g., 🌊 Lake)" required>
             <input type="text" id="elementDesc" placeholder="Element Description" required>
-            <input type="text" id="subStep1" placeholder="Sub Element 1" required>
-            <input type="text" id="subStep2" placeholder="Sub Element 2" required>
+            <input type="text" id="subStep1" placeholder="Sub Element 1 (e.g., B)" required>
+            <input type="text" id="subStep2" placeholder="Sub Element 2 (e.g., B)" required>
             <button type="submit">Submit</button>
         </form>
     </div>
-    <script src="script.js"></script>
+    <script src="script.js" type="module"></script>
 </body>
 </html>
-
