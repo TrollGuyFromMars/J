@@ -4,12 +4,12 @@ import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.c
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyD2NW6dGLJoZROaS6XlYTObRE9e868hlEE",
+    authDomain: "ok12345-389e2.firebaseapp.com",
+    projectId: "ok12345-389e2",
+    storageBucket: "ok12345-389e2.appspot.com",
+    messagingSenderId: "961029731143",
+    appId: "1:961029731143:web:aa8c884a13b498c1eb5262"
 };
 
 // Initialize Firebase
@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     fileInput.addEventListener('change', handleFileUpload);
     searchInput.addEventListener('input', debounce(handleSearch, 300));
     copyButton.addEventListener('click', copyGuideToClipboard);
-
     elementForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const elementName = document.getElementById('elementName').value;
@@ -52,26 +51,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchElements() {
         const querySnapshot = await getDocs(collection(db, 'elements'));
-        let elementsData = {};
+        elementsData = {};
         querySnapshot.forEach(doc => {
             elementsData[doc.id] = [doc.data().name, doc.data().description, doc.data().primary, doc.data().subStep1, doc.data().subStep2];
         });
-        displayElements(elementsData);
+        displayedElements = elementsData;
+        displayElements();
     }
 
     fetchElements();
 
+    let elementsData = {};
     let displayedElements = {};
     const chunkSize = 350; // Number of elements to process at a time
 
-    function handleFileUpload(event) {
+    async function handleFileUpload(event) {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const elementsData = JSON.parse(e.target.result);
-                    displayElements(elementsData);
+                    elementsData = JSON.parse(e.target.result);
+                    displayedElements = elementsData;
+                    displayElements();
                 } catch (error) {
                     console.error('Error parsing JSON:', error);
                 }
@@ -83,34 +85,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function displayElements(elementsData) {
+    function displayElements() {
+        const elementsContainer = document.getElementById('elementsContainer');
         elementsContainer.innerHTML = '';
-        let keys = Object.keys(elementsData).sort((a, b) => elementsData[a][1].localeCompare(elementsData[b][1]));
-        renderElementsChunk(keys, 0, elementsData);
+        let keys = Object.keys(displayedElements).sort((a, b) => displayedElements[a][1].localeCompare(displayedElements[b][1]));
+        renderElementsChunk(keys, 0);
     }
 
-    function renderElementsChunk(keys, start, elementsData) {
+    function renderElementsChunk(keys, start) {
+        const elementsContainer = document.getElementById('elementsContainer');
         const end = Math.min(start + chunkSize, keys.length);
 
         for (let i = start; i < end; i++) {
             const key = keys[i];
-            const element = elementsData[key];
+            const element = displayedElements[key];
             const elementDiv = document.createElement('div');
             elementDiv.className = 'element';
             elementDiv.innerHTML = `<div>${element[0]}</div><div>${element[1]}</div>`;
-            elementDiv.addEventListener('click', () => showGuide(key, elementsData));
+            elementDiv.addEventListener('click', () => showGuide(key));
             elementsContainer.appendChild(elementDiv);
         }
 
         if (end < keys.length) {
-            setTimeout(() => renderElementsChunk(keys, end, elementsData), 0);
+            setTimeout(() => renderElementsChunk(keys, end), 0);
         }
     }
 
-    function showGuide(elementKey, elementsData) {
+    function showGuide(elementKey) {
+        const guideContainer = document.getElementById('guideContainer');
         guideContainer.innerHTML = '';
         const steps = [];
-        gatherSteps(elementKey, steps, new Set(), elementsData);
+        gatherSteps(elementKey, steps, new Set());
         steps.forEach((step, index) => {
             const guideStep = document.createElement('div');
             guideStep.className = 'guide-step';
@@ -120,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         guideContainer.style.display = 'block';
     }
 
-    function gatherSteps(elementKey, steps, seen, elementsData) {
+    function gatherSteps(elementKey, steps, seen) {
         if (seen.has(elementKey) || !elementsData[elementKey]) return; // Check if element exists
         seen.add(elementKey);
 
@@ -132,11 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const subStep2 = element[4];
 
             if (!subStep1 || !subStep2 || !elementsData[subStep1] || !elementsData[subStep2]) return; // Check if subStep1 and subStep2 exist
-            gatherSteps(subStep1, steps, seen, elementsData); // Collect steps recursively
-            gatherSteps(subStep2, steps, seen, elementsData); // Collect steps recursively
+            gatherSteps(subStep1, steps, seen); // Collect steps recursively
+            gatherSteps(subStep2, steps, seen); // Collect steps recursively
 
-            const stepDescription = `${elementsData[subStep1][0]} <a href="#" onclick="showGuide('${subStep1}', ${JSON.stringify(elementsData)})">${elementsData[subStep1][1]}</a> + ${elementsData[subStep2][0]} <a href="#" onclick="showGuide('${subStep2}', ${JSON.stringify(elementsData)})">${elementsData[subStep2][1]}</a> =
- ${element[0]} ${element[1]}`;
+            const stepDescription = `${elementsData[subStep1][0]} <a href="#" onclick="showGuide('${subStep1}')">${elementsData[subStep1][1]}</a> + ${elementsData[subStep2][0]} <a href="#" onclick="showGuide('${subStep2}')">${elementsData[subStep2][1]}</a> = ${element[0]} ${element[1]}`;
             if (!steps.includes(stepDescription)) {
                 steps.push(stepDescription); // Add the step to the end to ensure order
             }
@@ -150,10 +154,11 @@ document.addEventListener('DOMContentLoaded', () => {
             .sort(([keyA, valueA], [keyB, valueB]) => valueA[1].localeCompare(valueB[1])); // Sort alphabetically
 
         displayedElements = Object.fromEntries(filteredElements);
-        displayElements(displayedElements);
+        displayElements();
     }
 
     function copyGuideToClipboard() {
+        const guideContainer = document.getElementById('guideContainer');
         const range = document.createRange();
         range.selectNodeContents(guideContainer);
         const selection = window.getSelection();
@@ -176,4 +181,14 @@ document.addEventListener('DOMContentLoaded', () => {
             timeout = setTimeout(() => func.apply(this, args), wait);
         };
     }
+
+    // Load initial data if data.json exists
+    fetch('https://raw.githubusercontent.com/TrollGuyFromMars/H/main/data.json')
+        .then(response => response.json())
+        .then(data => {
+            elementsData = data;
+            displayedElements = data;
+            displayElements();
+        })
+        .catch(error => console.error('Error loading initial data:', error));
 });
